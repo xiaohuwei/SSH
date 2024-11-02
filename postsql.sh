@@ -24,17 +24,22 @@ PG_HBA_FILE="/var/lib/pgsql/14/data/pg_hba.conf"
 # 备份原始 pg_hba.conf 文件
 cp "$PG_HBA_FILE" "${PG_HBA_FILE}.bak"
 
-# 设置本地 socket 连接为 trust
-if grep -q "^local\s\+all\s\+all\s\+trust" "$PG_HBA_FILE"; then
-    echo "本地 Unix socket 连接已经设置为免密 trust 模式。"
-else
-    sed -i "s/^local\s\+all\s\+all\s\+\S\+/local   all             all                                     trust/" "$PG_HBA_FILE"
+# 修改本地 Unix socket 连接为 trust
+if grep -q "^local\s\+all\s\+all\s\+peer" "$PG_HBA_FILE"; then
+    sed -i "s/^local\s\+all\s\+all\s\+peer/local   all             all                                     trust/" "$PG_HBA_FILE"
+    echo "本地 Unix socket 连接已设置为 trust。"
 fi
 
-# 添加 127.0.0.1 的 trust 配置
-if ! grep -q "^host\s\+all\s\+all\s\+127\.0\.0\.1\/32\s\+trust" "$PG_HBA_FILE"; then
-    echo "host    all             all             127.0.0.1/32            trust" >> "$PG_HBA_FILE"
-    echo "已为 127.0.0.1 添加 trust 免密连接配置。"
+# 修改 127.0.0.1 的连接为 trust
+if grep -q "^host\s\+all\s\+all\s\+127\.0\.0\.1\/32\s\+scram-sha-256" "$PG_HBA_FILE"; then
+    sed -i "s/^host\s\+all\s\+all\s\+127\.0\.0\.1\/32\s\+scram-sha-256/host    all             all             127.0.0.1\/32            trust/" "$PG_HBA_FILE"
+    echo "127.0.0.1 的连接方式已更新为 trust。"
+fi
+
+# 修改 ::1 的连接为 trust
+if grep -q "^host\s\+all\s\+all\s\+::1\/128\s\+scram-sha-256" "$PG_HBA_FILE"; then
+    sed -i "s/^host\s\+all\s\+all\s\+::1\/128\s\+scram-sha-256/host    all             all             ::1\/128                 trust/" "$PG_HBA_FILE"
+    echo "::1 的连接方式已更新为 trust。"
 fi
 
 # 重启 PostgreSQL 服务以应用配置
@@ -45,12 +50,12 @@ systemctl restart postgresql-14
 echo "正在创建数据库 'ws'..."
 sudo -i -u postgres psql -c "CREATE DATABASE ws;"
 
-echo "PostgreSQL 安装和配置已完成。"
 # 提示信息
+echo "PostgreSQL 安装和配置已完成。"
 echo "可使用下面的命令检查连接是否成功："
 echo ""
-echo "psql \"postgres://postgres@localhost:5432/ws\""
+echo 'psql "postgres://postgres@localhost:5432/ws"'
 echo ""
 echo "或者使用 127.0.0.1 地址："
 echo ""
-echo "psql \"postgres://postgres@127.0.0.1:5432/ws\""
+echo 'psql "postgres://postgres@127.0.0.1:5432/ws"'
