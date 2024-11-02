@@ -46,5 +46,11 @@ echo "正在创建数据库 'ws'..."
 sudo -i -u postgres psql -c "CREATE DATABASE ws;"
 
 echo "PostgreSQL 安装和配置已完成。"
-echo "可使用下面的命令检查"
-echo "psql "postgres://postgres@localhost:5432/ws"
+# 提示信息
+echo "可使用下面的命令检查连接是否成功："
+echo ""
+echo "psql \"postgres://postgres@localhost:5432/ws\""
+echo ""
+echo "或者使用 127.0.0.1 地址："
+echo ""
+echo "psql \"postgres://postgres@127.0.0.1:5432/ws\""
