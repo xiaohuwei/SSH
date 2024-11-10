@@ -85,3 +85,5 @@ fi
 PID=$(pgrep -f "${NATS_HOME}/nats-server")
 echo "NATS 服务器进程ID: $PID"
 echo "NATS 服务器监听地址: $LOCAL_IP:4222"
+echo "输入下面的指令查看Nats状态"
+echo "systemctl status nats-server"
