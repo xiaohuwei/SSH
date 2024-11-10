@@ -33,7 +33,9 @@ fi
 echo "正在配置 MongoDB 仅监听本机局域网地址..."
 MONGO_CONF_FILE="/etc/mongod.conf"
 if [ -f "$MONGO_CONF_FILE" ]; then
-    sed -i "s/^  bindIp: .*/  bindIp: $LOCAL_IP/" "$MONGO_CONF_FILE"
+    sed -i "s/^  bindIp: .*/  bindIp: 127.0.0.1,$LOCAL_IP/" "$MONGO_CONF_FILE"
+    # 启用认证
+    sed -i "/^#security:/a\security:\n  authorization: enabled" "$MONGO_CONF_FILE"
 else
     echo "MongoDB 配置文件 $MONGO_CONF_FILE 不存在，可能安装未成功"
     exit 1
@@ -42,7 +44,7 @@ fi
 # 启动并启用MongoDB服务
 echo "正在启动 MongoDB 服务并设置开机自启动..."
 systemctl enable mongod
-systemctl start mongod
+systemctl restart mongod
 
 # 检查MongoDB服务状态
 if systemctl is-active --quiet mongod; then
@@ -51,6 +53,9 @@ else
     echo "MongoDB 服务启动失败"
     exit 1
 fi
+
+# 暂停几秒等待 MongoDB 服务完全启动
+sleep 5
 
 # 创建MongoDB管理员用户并设置随机密码
 echo "正在创建MongoDB管理员用户..."
@@ -65,4 +70,4 @@ echo "MongoDB 管理员用户名: admin"
 echo "MongoDB 管理员随机生成的密码: $RANDOM_PASSWORD"
 echo
 echo "请妥善保管管理员密码。您可以使用以下命令登录 MongoDB："
-echo "mongo -u admin -p '$RANDOM_PASSWORD' --authenticationDatabase 'admin'"
+echo "mongo --host $LOCAL_IP -u admin -p '$RANDOM_PASSWORD' --authenticationDatabase 'admin'"
