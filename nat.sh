@@ -11,9 +11,21 @@ if [ ! -d "$NATS_HOME" ]; then
     mkdir -p "$NATS_HOME"
 fi
 
+# 确定系统架构，并选择对应的 NATS 服务器下载链接
+ARCH=$(uname -m)
+if [[ "$ARCH" == "x86_64" ]]; then
+    NATS_URL="https://github.com/nats-io/nats-server/releases/download/v2.10.20/nats-server-v2.10.20-linux-amd64.tar.gz"
+elif [[ "$ARCH" == "aarch64" ]]; then
+    NATS_URL="https://github.com/nats-io/nats-server/releases/download/v2.10.20/nats-server-v2.10.20-linux-arm64.tar.gz"
+else
+    echo "不支持的系统架构: $ARCH"
+    exit 1
+fi
+
 # 下载并安装 NATS 服务器
 echo "正在下载并安装 NATS 服务器到 $NATS_HOME ..."
-curl -sf https://binaries.nats.dev/nats-io/nats-server/v2@v2.10.20 | sh -s -- -d "$NATS_HOME" || { echo "NATS 服务器下载失败"; exit 1; }
+curl -Lo /tmp/nats-server.tar.gz "$NATS_URL" || { echo "NATS 服务器下载失败"; exit 1; }
+tar -xzvf /tmp/nats-server.tar.gz -C "$NATS_HOME" --strip-components=1 || { echo "NATS 服务器解压失败"; exit 1; }
 
 # 检查 NATS 服务器文件是否存在
 if [ ! -f "${NATS_HOME}/nats-server" ]; then
@@ -25,6 +37,7 @@ fi
 echo "正在创建 NATS 配置文件..."
 cat > "$CONFIG_FILE" <<EOF
 net: $LOCAL_IP
+port: 4222
 EOF
 
 # 创建 NATS systemd 服务文件
