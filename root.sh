@@ -76,9 +76,15 @@ else
   echo "无法重启 sshd 服务，请手动重启。"
 fi
 
+# 获取公网 IP
+PUBLIC_IP=$(curl -s https://checkip.amazonaws.com)
+
 echo "所有操作已完成！"
 echo "--------------------------------------------"
 echo "您的 root 用户新密码为：$ROOT_PASSWORD"
 echo "请妥善保管，并尽快登录测试。"
 echo "出于安全考虑，建议您在登录后立即更改密码。"
+echo ""
+echo "使用以下命令登录服务器："
+echo "ssh root@$PUBLIC_IP"
 echo "--------------------------------------------"
