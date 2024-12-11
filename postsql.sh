@@ -42,6 +42,18 @@ if grep -q "^host\s\+all\s\+all\s\+::1\/128\s\+scram-sha-256" "$PG_HBA_FILE"; th
     echo "::1 的连接方式已更新为 trust。"
 fi
 
+# 修改 postgresql.conf 的 max_connections 参数为 500
+POSTGRESQL_CONF="/var/lib/pgsql/14/data/postgresql.conf"
+cp "$POSTGRESQL_CONF" "${POSTGRESQL_CONF}.bak"
+
+# 如果存在以 max_connections 开头的行（包括注释掉的），则直接替换，否则在文件末尾追加。
+if grep -q "^[#]*\s*max_connections\s*=" "$POSTGRESQL_CONF"; then
+    sed -i "s/^[#]*\s*max_connections\s*=.*/max_connections = 500/" "$POSTGRESQL_CONF"
+else
+    echo "max_connections = 500" >> "$POSTGRESQL_CONF"
+fi
+echo "max_connections 参数已修改为 500。"
+
 # 重启 PostgreSQL 服务以应用配置
 echo "正在重启 PostgreSQL 服务以应用新的配置..."
 systemctl restart postgresql-14
