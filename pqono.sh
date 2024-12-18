@@ -25,7 +25,7 @@ IP_ADDR=$(hostname -i | awk '{print $1}')
 echo "本机IP地址为: $IP_ADDR 😎"
 
 echo "添加 pg_hba.conf 规则，允许局域网服务器连接...✏"
-echo "host    all             all             172.30.224.0/20         trust" >> /var/lib/pgsql/14/data/pg_hba.conf
+echo "host    all             all             172.16.0.0/12         trust" >> /var/lib/pgsql/14/data/pg_hba.conf
 echo "规则添加完成✅"
 
 echo "开始修改 postgresql.conf 中的 listen_addresses 配置...✏"
