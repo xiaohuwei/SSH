@@ -4,7 +4,7 @@
 MONGO_VERSION="4.0.27"
 MONGO_REPO_FILE="/etc/yum.repos.d/mongodb-org-4.0.repo"
 LOCAL_IP=$(hostname -I | awk '{print $1}')
-RANDOM_PASSWORD=$(openssl rand -base64 12)
+RANDOM_PASSWORD=$(openssl rand -base64 12 | tr -dc 'A-Za-z0-9')
 
 # 创建MongoDB的YUM仓库文件
 echo "正在配置 MongoDB YUM 仓库..."
