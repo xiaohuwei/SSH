@@ -2,7 +2,7 @@
 
 # 设置 Redis 的本地监听 IP 和随机生成的密码
 LOCAL_IP=$(hostname -I | awk '{print $1}')
-REDIS_PASSWORD=$(openssl rand -base64 12)
+REDIS_PASSWORD=$(openssl rand -base64 12 | tr -dc 'A-Za-z0-9')
 
 # 安装 EPEL 和 Remi 仓库
 echo "正在安装 EPEL 和 Remi 仓库..."
