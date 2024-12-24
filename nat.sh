@@ -38,7 +38,7 @@ echo "正在创建 NATS 配置文件..."
 cat > "$CONFIG_FILE" <<EOF
 net: $LOCAL_IP
 port: 4222
-max_payload: 3MB
+max_payload: 4MB
 EOF
 
 # 创建 NATS systemd 服务文件
